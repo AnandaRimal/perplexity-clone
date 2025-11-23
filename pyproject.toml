@@ -13,4 +13,5 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "google-api-python-client>=2.187.0",
+    "tavily-python",
 ]
