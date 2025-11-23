@@ -6,7 +6,7 @@ from typing import List
 import json
 import asyncio
 from langchain_core.messages import HumanMessage, AIMessage
-from Backend.agent import create_graph
+from agent import create_graph
 
 app = FastAPI(title="Perplexity Clone API")
 

@@ -261,12 +261,27 @@ export default function ThreadView({ query, onSearch }: ThreadViewProps) {
                         type="text"
                         placeholder="Ask a follow-up"
                         className="w-full bg-zinc-800/50 border border-zinc-700/50 rounded-full py-3.5 pl-5 pr-24 text-zinc-200 placeholder-zinc-500 focus:outline-none focus:bg-zinc-800 focus:border-zinc-600 transition-all shadow-lg"
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                                onSearch(e.currentTarget.value);
+                                e.currentTarget.value = '';
+                            }
+                        }}
                     />
                     <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                         <button className="p-2 rounded-full hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 transition-colors">
                             <Globe size={18} />
                         </button>
-                        <button className="p-2 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-300 transition-colors shadow-md">
+                        <button
+                            className="p-2 rounded-full bg-zinc-700 hover:bg-zinc-600 text-zinc-300 transition-colors shadow-md"
+                            onClick={(e) => {
+                                const input = e.currentTarget.parentElement?.previousElementSibling as HTMLInputElement;
+                                if (input && input.value.trim()) {
+                                    onSearch(input.value);
+                                    input.value = '';
+                                }
+                            }}
+                        >
                             <ArrowRight size={18} />
                         </button>
                     </div>

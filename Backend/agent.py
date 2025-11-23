@@ -101,4 +101,3 @@ def create_graph():
 if __name__ == "__main__":
     app = create_graph()
     print("Graph created successfully.")
-
