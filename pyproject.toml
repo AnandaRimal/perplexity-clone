@@ -1,0 +1,16 @@
+[project]
+name = "perplexity"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "python-dotenv",
+    "langchain",
+    "langchain-google-genai",
+    "langchain-community",
+    "langgraph",
+    "fastapi",
+    "uvicorn",
+    "google-api-python-client>=2.187.0",
+]
