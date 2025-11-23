@@ -62,24 +62,8 @@ async def chat_endpoint(request: ChatRequest):
                     if event["name"] == "tavily_search":
                         output = event["data"].get("output")
                         if output and isinstance(output, list):
-                            sources = []
-                            images = []
-                            
-                            for item in output:
-                                # Extract Source
-                                if isinstance(item, dict):
-                                    url = item.get("url")
-                                    content = item.get("content", "")
-                                    # Use content snippet as title if title missing
-                                    title = item.get("title") or (content[:50] + "..." if content else url)
-                                    
-                                    if url:
-                                        sources.append({"url": url, "title": title})
-                                    
-                                    # Check for images (Tavily response structure varies based on options)
-                                    # If 'images' are returned as a list of URLs
-                                    if "images" in item and isinstance(item["images"], list):
-                                        images.extend(item["images"])
+                            from image_handler import process_tavily_images
+                            sources, images = process_tavily_images(output)
                             
                             # Protocol Type 2: Sources
                             if sources:
