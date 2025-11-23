@@ -1,15 +1,16 @@
 import os
 from typing import TypedDict, Annotated, List
 from dotenv import load_dotenv
+from datetime import datetime
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage
-from langchain_community.tools import GoogleSearchRun
-from langchain_community.utilities import GoogleSearchAPIWrapper
+from langchain_community.tools.tavily_search import TavilySearchResults
 
 from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
 
 # ---------------------------------------------------------
 # Load Environment
@@ -26,7 +27,7 @@ class AgentState(TypedDict):
 # LLM Setup
 # ---------------------------------------------------------
 llm = ChatGoogleGenerativeAI(
-    model="gemini-1.5-pro",
+    model="gemini-2.5-flash",
     temperature=0.2,
     convert_system_message_to_human=True,
 )
@@ -34,8 +35,8 @@ llm = ChatGoogleGenerativeAI(
 # ---------------------------------------------------------
 # Tools
 # ---------------------------------------------------------
-search_tool = GoogleSearchRun(api_wrapper=GoogleSearchAPIWrapper())
-search_tool.name = "google_search"
+search_tool = TavilySearchResults(max_results=2)
+search_tool.name = "tavily_search"
 
 tools = [search_tool]
 llm_with_tools = llm.bind_tools(tools)
@@ -44,12 +45,14 @@ llm_with_tools = llm.bind_tools(tools)
 # Agent Node
 # ---------------------------------------------------------
 def agent_node(state: AgentState):
-    system_prompt = SystemMessage("""
-You are a helpful AI assistant.
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    
+    system_prompt = SystemMessage(f"""
+You are a helpful AI assistant. Today's date is {current_date}.
 
 - For casual chat, answer normally.
 - For factual questions, news, or anything requiring updated information,
-  CALL the `google_search` tool.
+  CALL the `tavily_search` tool.
 """)
 
     messages = [system_prompt] + state["messages"]
@@ -86,4 +89,16 @@ def create_graph():
 
     graph.add_edge("tools", "agent")
 
-    return graph.compile()
+    # Initialize MemorySaver
+    memory = MemorySaver()
+
+    # Compile with checkpointer
+    return graph.compile(checkpointer=memory)
+
+# ---------------------------------------------------------
+# Main Execution
+# ---------------------------------------------------------
+if __name__ == "__main__":
+    app = create_graph()
+    print("Graph created successfully.")
+
