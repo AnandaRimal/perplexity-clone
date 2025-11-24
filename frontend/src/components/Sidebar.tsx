@@ -4,10 +4,10 @@ import { Home, Compass, LayoutGrid, User, ArrowUpRight, Download, Plus, LineChar
 export default function Sidebar() {
     return (
         <aside className="fixed left-0 top-0 h-screen w-[80px] bg-[#202020] flex flex-col items-center py-4 z-50">
-            <div className="mb-6 flex flex-col items-center gap-1 ml-3">
+            <a href="/" className="mb-6 flex flex-col items-center gap-1 ml-3 cursor-pointer">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/logo.jpg" alt="Perplexity Logo" className="w-16 h-16 object-contain rounded-lg" />
-            </div>
+            </a>
 
             <div className="mb-6 flex flex-col items-center gap-1 cursor-pointer group">
                 <div className="p-2 rounded-full bg-zinc-800 group-hover:bg-zinc-700 transition-colors">

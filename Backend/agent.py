@@ -35,10 +35,26 @@ llm = ChatGoogleGenerativeAI(
 # ---------------------------------------------------------
 # Tools
 # ---------------------------------------------------------
-search_tool = TavilySearchResults(max_results=2)
-search_tool.name = "tavily_search"
+from tavily import TavilyClient
+from langchain_core.tools import tool
 
-tools = [search_tool]
+# ---------------------------------------------------------
+# Tools
+# ---------------------------------------------------------
+tavily_client = TavilyClient(api_key=os.environ["TAVILY_API_KEY"])
+
+@tool
+def tavily_search(query: str):
+    """
+    Search for information using Tavily.
+    Returns a list of search results and images.
+    """
+    response = tavily_client.search(query, max_results=10, include_images=True)
+    # Combine results and images into a single list
+    # Images are just strings (URLs), results are dicts
+    return {"results": response["results"], "images": response.get("images", [])}
+
+tools = [tavily_search]
 llm_with_tools = llm.bind_tools(tools)
 
 # ---------------------------------------------------------
@@ -54,9 +70,12 @@ Your goal is to provide accurate, comprehensive, and cited answers.
 
 Instructions:
 1. **Analyze the User's Request**: Understand what the user is asking.
-2. **Formulate Search Queries**: If the request requires external knowledge (news, facts, data), generate specific and optimized search queries for the `tavily_search` tool. Do not just repeat the user's input if a better query exists.
+2. **Formulate Search Queries**: If the request requires external knowledge (news, facts, data) OR if the user asks about a specific entity (person, place, thing), **ALWAYS** generate specific and optimized search queries for the `tavily_search` tool.
+   - Even if the query is misspelled (e.g., "rinalod"), try to infer the correct entity (e.g., "Ronaldo") and SEARCH for it.
+   - Do NOT ask for clarification unless absolutely necessary. Better to search for the most likely intent.
 3. **Synthesize Answers**:
-   - When you receive search results, analyze them carefully.
+   -
+    When you receive search results, analyze them carefully.
    - Synthesize a coherent answer that directly addresses the user's question.
    - **Cite your sources** using the format [1], [2], etc., corresponding to the order of sources returned.
    - If the search results are insufficient, state that clearly or ask for clarification.
@@ -75,7 +94,10 @@ Always prioritize accuracy and helpfulness.
 # ---------------------------------------------------------
 def should_continue(state: AgentState):
     last = state["messages"][-1]
-    return "tools" if last.tool_calls else "__end__"
+    # Check if the message has tool_calls attribute and if it's not empty
+    if hasattr(last, "tool_calls") and last.tool_calls:
+        return "tools"
+    return "__end__"
 
 # ---------------------------------------------------------
 # Create Graph

@@ -104,9 +104,11 @@ export default function ThreadView({ query, onSearch }: ThreadViewProps) {
                             }
                         } else if (type === '3') {
                             // Image chunk
+                            console.log('Received images chunk:', data);
                             try {
                                 const imagesData = JSON.parse(data);
                                 if (Array.isArray(imagesData)) {
+                                    console.log('Setting images state:', imagesData);
                                     setImages(imagesData);
                                 }
                             } catch (e) {

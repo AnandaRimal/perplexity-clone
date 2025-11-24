@@ -8,7 +8,7 @@ import asyncio
 from langchain_core.messages import HumanMessage, AIMessage
 from agent import create_graph
 
-app = FastAPI(title="Perplexity Clone API")
+app = FastAPI(title="Perplexity")
 
 # Allow CORS for frontend
 app.add_middleware(
@@ -40,7 +40,7 @@ async def chat_endpoint(request: ChatRequest):
             latest_message = request.messages[-1]
             input_message = HumanMessage(content=latest_message.content)
             
-            # Use a static thread_id for now to maintain session state
+            # Use a static thread_id for session state
             config = {"configurable": {"thread_id": "1"}}
             
             async for event in agent_app.astream_events(
@@ -57,21 +57,29 @@ async def chat_endpoint(request: ChatRequest):
                         # Protocol Type 0: Text
                         yield f"0:{json.dumps(content)}\n"
                 
-                # Handle Tool Outputs (Sources/Images)
+                # Stream Tool Output (Sources & Images)
                 elif kind == "on_tool_end":
-                    if event["name"] == "tavily_search":
-                        output = event["data"].get("output")
-                        if output and isinstance(output, list):
-                            from image_handler import process_tavily_images
-                            sources, images = process_tavily_images(output)
-                            
-                            # Protocol Type 2: Sources
-                            if sources:
-                                yield f"2:{json.dumps(sources)}\n"
-                            
-                            # Protocol Type 3: Images
-                            if images:
-                                yield f"3:{json.dumps(images)}\n"
+                    output = event["data"].get("output")
+                    
+                    tool_result = None
+                    if hasattr(output, "content"):
+                        try:
+                            tool_result = json.loads(output.content)
+                        except:
+                            pass
+                    elif isinstance(output, dict) and "results" in output:
+                         tool_result = output
+                    
+                    if tool_result:
+                        # Stream Images
+                        if "images" in tool_result and tool_result["images"]:
+                            yield f"3:{json.dumps(tool_result['images'])}\n"
+                        
+                        # Stream Sources
+                        if "results" in tool_result and tool_result["results"]:
+                            yield f"2:{json.dumps(tool_result['results'])}\n"
+                
+
 
         except Exception as e:
             print(f"Error generating stream: {e}")
