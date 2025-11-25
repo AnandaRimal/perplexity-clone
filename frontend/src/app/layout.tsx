@@ -14,6 +14,8 @@ export const metadata: Metadata = {
   description: "A search engine powered by Gemini",
 };
 
+import Sidebar from "@/components/Sidebar";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -21,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${merriweather.variable} font-sans antialiased`}>{children}</body>
+      <body className={`${inter.variable} ${merriweather.variable} font-sans antialiased bg-zinc-900 text-zinc-100`}>
+        <Sidebar />
+        {children}
+      </body>
     </html>
   );
 }

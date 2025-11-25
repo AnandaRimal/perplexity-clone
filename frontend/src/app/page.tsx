@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Sidebar from "@/components/Sidebar";
 import SearchBar from "@/components/SearchBar";
 import ThreadView from "@/components/ThreadView";
 import { ArrowUp } from "lucide-react";
@@ -39,7 +38,6 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen bg-zinc-900 text-zinc-100 font-sans">
-      <Sidebar />
       <div
         ref={scrollContainerRef}
         className="flex-1 ml-[80px] flex flex-col h-screen overflow-y-auto relative scroll-smooth"

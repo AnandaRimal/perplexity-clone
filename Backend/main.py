@@ -87,6 +87,13 @@ async def chat_endpoint(request: ChatRequest):
 
     return StreamingResponse(event_generator(), media_type="text/plain")
 
+from discover import get_discover_content
+
+@app.get("/api/discover")
+async def discover_endpoint(category: str = "for_you"):
+    data = get_discover_content(category)
+    return data
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
