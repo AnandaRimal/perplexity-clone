@@ -7,8 +7,10 @@ import json
 import asyncio
 from langchain_core.messages import HumanMessage, AIMessage
 from agent import create_graph
+import finance
 
 app = FastAPI(title="Perplexity")
+app.include_router(finance.router)
 
 # Allow CORS for frontend
 app.add_middleware(
@@ -87,11 +89,15 @@ async def chat_endpoint(request: ChatRequest):
 
     return StreamingResponse(event_generator(), media_type="text/plain")
 
-from discover import get_discover_content
+from discover import get_discover_content, update_cache
+
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(update_cache())
 
 @app.get("/api/discover")
 async def discover_endpoint(category: str = "for_you"):
-    data = get_discover_content(category)
+    data = await get_discover_content(category)
     return data
 
 if __name__ == "__main__":

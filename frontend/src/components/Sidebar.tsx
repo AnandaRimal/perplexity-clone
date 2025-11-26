@@ -129,12 +129,12 @@ export default function Sidebar() {
                     <span className="text-[10px] text-zinc-500 group-hover:text-zinc-300 font-medium">Spaces</span>
                 </div>
 
-                <div className="flex flex-col items-center gap-1 cursor-pointer group">
-                    <div className="p-1.5 rounded-full group-hover:bg-zinc-800/50 transition-colors">
-                        <LineChart size={24} strokeWidth={1.5} className="text-zinc-500 group-hover:text-zinc-300 transition-colors" />
+                <Link href="/finance" className="flex flex-col items-center gap-1 cursor-pointer group">
+                    <div className={`p-1.5 rounded-full transition-colors ${isActive('/finance') ? 'bg-zinc-800 text-white' : 'group-hover:bg-zinc-800/50 text-zinc-500 group-hover:text-zinc-300'}`}>
+                        <LineChart size={24} strokeWidth={1.5} className={isActive('/finance') ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'} />
                     </div>
-                    <span className="text-[10px] text-zinc-500 group-hover:text-zinc-300 font-medium">Finance</span>
-                </div>
+                    <span className={`text-[10px] font-medium ${isActive('/finance') ? 'text-white' : 'text-zinc-500 group-hover:text-zinc-300'}`}>Finance</span>
+                </Link>
 
 
             </nav>
